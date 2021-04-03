@@ -1061,7 +1061,7 @@ f_install_mysql() {
 
     apt-get install software-properties-common -y
     apt-key adv --recv-keys --keyserver hkp://keyserver.ubuntu.com:80 0xF1656F24C74CD1D8
-    sh -c "echo 'deb https://mirrors.evowise.com/mariadb/repo/10.2/ubuntu '$(lsb_release -cs)' main' > /etc/apt/sources.list.d/MariaDB102.list"
+    #sh -c "echo 'deb https://mirrors.evowise.com/mariadb/repo/10.2/ubuntu '$(lsb_release -cs)' main' > /etc/apt/sources.list.d/MariaDB102.list"
 
     apt-get update -y
     apt-get install mariadb-server mariadb-client -y
@@ -1204,6 +1204,10 @@ EOF
     service php7.0-fpm restart
 
     update-alternatives --set php /usr/bin/php7.4
+}
+
+f_phpmyadmin() {
+
 }
 
 f_prepare_magento() {
