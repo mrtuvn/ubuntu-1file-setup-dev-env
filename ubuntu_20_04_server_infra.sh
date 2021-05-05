@@ -1,8 +1,8 @@
 #!/bin/bash
 
-apache_user=$1
+host_user=$1
 
-if [ -z "${apache_user}" ];then
+if [ -z "${host_user}" ];then
     echo "Please input logged in username ...."
     exit \1
 fi
@@ -32,7 +32,7 @@ f_update_os () {
 }
 
 f_install_nginx() {
-    ########## INSTALL APACHE ##########
+    ########## INSTALL NGINX ##########
     echo "Installing nginx ..."
     sleep 1
 
@@ -44,7 +44,7 @@ f_install_nginx() {
     > /etc/nginx/nginx.conf
 
     cat > /etc/nginx/nginx.conf <<EOL
-user ${apache_user} ${apache_user};
+user ${host_user} ${host_user};
 worker_processes auto;
 pid /run/nginx.pid;
 include /etc/nginx/modules-enabled/*.conf;
@@ -1017,8 +1017,8 @@ server {
    #After that, add 127.0.0.1 your_virtual_site_here into /etc/hosts
    server_name magento.dev;
 
-   #set \$MAGE_ROOT as your project folder location, should be set to /home/${apache_user} to avoid permission issues
-   set \$MAGE_ROOT /home/${apache_user}/your-folder-here;
+   #set \$MAGE_ROOT as your project folder location, should be set to /home/${host_user} to avoid permission issues
+   set \$MAGE_ROOT /home/${host_user}/your-folder-here;
    #set \$MAGE_DEBUG_SHOW_ARGS 1;
 
    #select only 1 according to php version which is used
@@ -1039,8 +1039,8 @@ EOL
 f_mysql_config() {
     #create user
     mysql \
-    -e "CREATE USER '${apache_user}'@'localhost' IDENTIFIED BY '${apache_user}';" \
-    -e "GRANT ALL PRIVILEGES ON * . * TO '${apache_user}'@'localhost';" \
+    -e "CREATE USER '${host_user}'@'localhost' IDENTIFIED BY '${host_user}';" \
+    -e "GRANT ALL PRIVILEGES ON * . * TO '${host_user}'@'localhost';" \
     -e "FLUSH PRIVILEGES;"
 }
 
@@ -1061,7 +1061,6 @@ f_install_mysql() {
 
     apt-get install software-properties-common -y
     apt-key adv --recv-keys --keyserver hkp://keyserver.ubuntu.com:80 0xF1656F24C74CD1D8
-    #sh -c "echo 'deb https://mirrors.evowise.com/mariadb/repo/10.2/ubuntu '$(lsb_release -cs)' main' > /etc/apt/sources.list.d/MariaDB102.list"
 
     apt-get update -y
     apt-get install mariadb-server mariadb-client -y
@@ -1091,10 +1090,10 @@ f_install_php() {
     sleep 1
     apt install -y php7.4-fpm php7.4-bcmath php7.4-cli php7.4-common php7.4-gd php7.4-intl php7.4-json php7.4-mbstring  php7.4-xmlrpc php7.4-xml php7.4-mysql php7.4-soap php7.4-zip php7.4-curl
 
-    sed -i "s/user = www-data/user = ${apache_user}/g" /etc/php/7.4/fpm/pool.d/www.conf
-    sed -i "s/group = www-data/group = ${apache_user}/g" /etc/php/7.4/fpm/pool.d/www.conf
-    sed -i "s/listen.owner = www-data/listen.owner = ${apache_user}/g" /etc/php/7.4/fpm/pool.d/www.conf
-    sed -i "s/listen.group = www-data/listen.group = ${apache_user}/g" /etc/php/7.4/fpm/pool.d/www.conf
+    sed -i "s/user = www-data/user = ${host_user}/g" /etc/php/7.4/fpm/pool.d/www.conf
+    sed -i "s/group = www-data/group = ${host_user}/g" /etc/php/7.4/fpm/pool.d/www.conf
+    sed -i "s/listen.owner = www-data/listen.owner = ${host_user}/g" /etc/php/7.4/fpm/pool.d/www.conf
+    sed -i "s/listen.group = www-data/listen.group = ${host_user}/g" /etc/php/7.4/fpm/pool.d/www.conf
     sed -i "s/zend_extension=opcache.so/;zend_extension=opcache.so/g" /etc/php/7.4/mods-available/opcache.ini
     sed -i "s/zend_extension=xdebug.so/;zend_extension=xdebug.so/g" /etc/php/7.4/mods-available/xdebug.ini
 
@@ -1102,10 +1101,10 @@ f_install_php() {
     sleep 1
     apt install -y php7.3-fpm php7.3-bcmath php7.3-cli php7.3-common php7.3-gd php7.3-intl php7.3-json php7.3-mbstring  php7.3-xmlrpc php7.3-xml php7.3-mysql php7.3-soap php7.3-zip php7.3-curl
 
-    sed -i "s/user = www-data/user = ${apache_user}/g" /etc/php/7.3/fpm/pool.d/www.conf
-    sed -i "s/group = www-data/group = ${apache_user}/g" /etc/php/7.3/fpm/pool.d/www.conf
-    sed -i "s/listen.owner = www-data/listen.owner = ${apache_user}/g" /etc/php/7.3/fpm/pool.d/www.conf
-    sed -i "s/listen.group = www-data/listen.group = ${apache_user}/g" /etc/php/7.3/fpm/pool.d/www.conf
+    sed -i "s/user = www-data/user = ${host_user}/g" /etc/php/7.3/fpm/pool.d/www.conf
+    sed -i "s/group = www-data/group = ${host_user}/g" /etc/php/7.3/fpm/pool.d/www.conf
+    sed -i "s/listen.owner = www-data/listen.owner = ${host_user}/g" /etc/php/7.3/fpm/pool.d/www.conf
+    sed -i "s/listen.group = www-data/listen.group = ${host_user}/g" /etc/php/7.3/fpm/pool.d/www.conf
     sed -i "s/zend_extension=opcache.so/;zend_extension=opcache.so/g" /etc/php/7.3/mods-available/opcache.ini
     sed -i "s/zend_extension=xdebug.so/;zend_extension=xdebug.so/g" /etc/php/7.3/mods-available/xdebug.ini
 
@@ -1113,20 +1112,20 @@ f_install_php() {
     sleep 1
     apt install -y php7.2-fpm php7.2-bcmath php7.2-cli php7.2-common php7.2-gd php7.2-intl php7.2-json php7.2-mbstring  php7.2-xmlrpc php7.2-xml php7.2-mysql php7.2-soap php7.2-zip php7.2-curl
 
-    sed -i "s/user = www-data/user = ${apache_user}/g" /etc/php/7.2/fpm/pool.d/www.conf
-    sed -i "s/group = www-data/group = ${apache_user}/g" /etc/php/7.2/fpm/pool.d/www.conf
-    sed -i "s/listen.owner = www-data/listen.owner = ${apache_user}/g" /etc/php/7.2/fpm/pool.d/www.conf
-    sed -i "s/listen.group = www-data/listen.group = ${apache_user}/g" /etc/php/7.2/fpm/pool.d/www.conf
+    sed -i "s/user = www-data/user = ${host_user}/g" /etc/php/7.2/fpm/pool.d/www.conf
+    sed -i "s/group = www-data/group = ${host_user}/g" /etc/php/7.2/fpm/pool.d/www.conf
+    sed -i "s/listen.owner = www-data/listen.owner = ${host_user}/g" /etc/php/7.2/fpm/pool.d/www.conf
+    sed -i "s/listen.group = www-data/listen.group = ${host_user}/g" /etc/php/7.2/fpm/pool.d/www.conf
     sed -i "s/zend_extension=opcache.so/;zend_extension=opcache.so/g" /etc/php/7.2/mods-available/opcache.ini
     sed -i "s/zend_extension=xdebug.so/;zend_extension=xdebug.so/g" /etc/php/7.2/mods-available/xdebug.ini
 
     echo "install php7.1 ..."
     sleep 1
     apt install -y php7.1-fpm php7.1-bcmath php7.1-cli php7.1-common php7.1-gd php7.1-intl php7.1-json php7.1-mbstring  php7.1-xmlrpc php7.1-xml php7.1-mysql php7.1-soap php7.1-zip php7.1-curl php7.1-mcrypt
-    sed -i "s/user = www-data/user = ${apache_user}/g" /etc/php/7.1/fpm/pool.d/www.conf
-    sed -i "s/group = www-data/group = ${apache_user}/g" /etc/php/7.1/fpm/pool.d/www.conf
-    sed -i "s/listen.owner = www-data/listen.owner = ${apache_user}/g" /etc/php/7.1/fpm/pool.d/www.conf
-    sed -i "s/listen.group = www-data/listen.group = ${apache_user}/g" /etc/php/7.1/fpm/pool.d/www.conf
+    sed -i "s/user = www-data/user = ${host_user}/g" /etc/php/7.1/fpm/pool.d/www.conf
+    sed -i "s/group = www-data/group = ${host_user}/g" /etc/php/7.1/fpm/pool.d/www.conf
+    sed -i "s/listen.owner = www-data/listen.owner = ${host_user}/g" /etc/php/7.1/fpm/pool.d/www.conf
+    sed -i "s/listen.group = www-data/listen.group = ${host_user}/g" /etc/php/7.1/fpm/pool.d/www.conf
     sed -i "s/zend_extension=opcache.so/;zend_extension=opcache.so/g" /etc/php/7.1/mods-available/opcache.ini
     sed -i "s/zend_extension=xdebug.so/;zend_extension=xdebug.so/g" /etc/php/7.1/mods-available/xdebug.ini
 
@@ -1134,10 +1133,10 @@ f_install_php() {
     sleep 1
     apt install -y php7.0-fpm php7.0-bcmath php7.0-cli php7.0-common php7.0-gd php7.0-intl php7.0-json php7.0-mbstring  php7.0-xmlrpc php7.0-xml php7.0-mysql php7.0-soap php7.0-zip php7.0-curl php7.0-mcrypt
 
-    sed -i "s/user = www-data/user = ${apache_user}/g" /etc/php/7.0/fpm/pool.d/www.conf
-    sed -i "s/group = www-data/group = ${apache_user}/g" /etc/php/7.0/fpm/pool.d/www.conf
-    sed -i "s/listen.owner = www-data/listen.owner = ${apache_user}/g" /etc/php/7.0/fpm/pool.d/www.conf
-    sed -i "s/listen.group = www-data/listen.group = ${apache_user}/g" /etc/php/7.0/fpm/pool.d/www.conf
+    sed -i "s/user = www-data/user = ${host_user}/g" /etc/php/7.0/fpm/pool.d/www.conf
+    sed -i "s/group = www-data/group = ${host_user}/g" /etc/php/7.0/fpm/pool.d/www.conf
+    sed -i "s/listen.owner = www-data/listen.owner = ${host_user}/g" /etc/php/7.0/fpm/pool.d/www.conf
+    sed -i "s/listen.group = www-data/listen.group = ${host_user}/g" /etc/php/7.0/fpm/pool.d/www.conf
     sed -i "s/zend_extension=opcache.so/;zend_extension=opcache.so/g" /etc/php/7.0/mods-available/opcache.ini
     sed -i "s/zend_extension=xdebug.so/;zend_extension=xdebug.so/g" /etc/php/7.0/mods-available/xdebug.ini
 
@@ -1206,10 +1205,6 @@ EOF
     update-alternatives --set php /usr/bin/php7.4
 }
 
-f_phpmyadmin() {
-
-}
-
 f_prepare_magento() {
 
 echo "Preparing install composer ..."
@@ -1221,14 +1216,13 @@ php composer-setup.php --install-dir=/usr/local/bin --filename=composer
 php -r "unlink('composer-setup.php');"
 
 chmod +x /usr/local/bin/composer
-su ${apache_user} -c "composer global require hirak/prestissimo"
 
 #setup trust host
-mkdir -p /home/${apache_user}/.ssh
-printf "Host github.com\n\tStrictHostKeyChecking no\n" >> /home/${apache_user}/.ssh/config
-printf "Host repo.magento.com\n\tStrictHostKeyChecking no\n" >> /home/${apache_user}/.ssh/config
+mkdir -p /home/${host_user}/.ssh
+printf "Host github.com\n\tStrictHostKeyChecking no\n" >> /home/${host_user}/.ssh/config
+printf "Host repo.magento.com\n\tStrictHostKeyChecking no\n" >> /home/${host_user}/.ssh/config
 
-chmod 600 /home/${apache_user}/.ssh/config
+chmod 600 /home/${host_user}/.ssh/config
 
 #install modman
 curl -SL https://raw.githubusercontent.com/colinmollenhour/modman/master/modman -o modman
@@ -1244,7 +1238,7 @@ f_install_lamp () {
     f_install_nginx
     f_prepare_magento
 
-    chown -R ${apache_user}:${apache_user} /home/${apache_user}
+    chown -R ${host_user}:${host_user} /home/${host_user}
 }
 
 f_install_adminer(){
@@ -1293,12 +1287,12 @@ f_install_extra_features() {
 f_messages(){
     echo "
     1. Mysql
-        - username: ${apache_user} - password: ${apache_user}
+        - username: ${host_user} - password: ${host_user}
         - Using localhost/adminer.php to access
         - root password: root / root in case you need.
 
     2. Phpstorm
-        - first run: bash /home/${apache_user}/phpstorm/bin/phpstorm.sh
+        - first run: bash /home/${host_user}/phpstorm/bin/phpstorm.sh
 
     3. Nginx
         - nginx is prepared for virtual host and support magento configuration with php-fpm7.0, php-fpm7.2, php-fpm7.3, php-fpm7.4
@@ -1323,7 +1317,7 @@ f_sub_main () {
     f_install_extra_features
 
     echo "Final chown to make sure everything running well ..."
-    chown -R ${apache_user}:${apache_user} /home/${apache_user}
+    chown -R ${host_user}:${host_user} /home/${host_user}
 
     #update vm.max_map_count=262144 to match with ES configuration
     sysctl -w vm.max_map_count=262144
